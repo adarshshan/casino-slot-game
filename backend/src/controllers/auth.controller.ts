@@ -28,11 +28,11 @@ export const register = async (req: Request, res: Response) => {
         console.log(user)
         const tokens = generateTokens(user?._id);
         console.log('this is the token...', tokens)
-        res.status(201).json(tokens);
+        res.status(201).json({ success: true, ...tokens });
     } catch (error) {
         console.log('Error caught in register function:', error as Error)
         console.log('this is reached here')
-        res.status(400).json({ message: 'Error creating user', error });
+        res.status(400).json({ success: false, message: 'Error creating user', error });
     }
 };
 
@@ -41,29 +41,29 @@ export const login = async (req: Request, res: Response) => {
     try {
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ success: false, message: 'Invalid credentials' });
         }
         const tokens = generateTokens(user._id);
-        res.json(tokens);
+        res.json({ success: true, ...tokens });
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
 
 export const refreshToken = async (req: Request, res: Response) => {
     const { token } = req.body;
     if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(401).json({ success: false, message: 'No token provided' });
     }
     try {
         const decoded = jwt.verify(token, process.env.REFRESH_SECRET!) as { userId: string };
         const tokens = generateTokens(decoded.userId);
-        res.json(tokens);
+        res.json({ success: true, ...tokens });
     } catch (error) {
-        return res.status(403).json({ message: 'Invalid refresh token' });
+        return res.status(403).json({ success: false, message: 'Invalid refresh token' });
     }
 };
