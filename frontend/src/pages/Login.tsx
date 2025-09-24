@@ -53,12 +53,9 @@ const Login = () => {
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-    console.log("...formData...");
-    console.log(formData);
     e.preventDefault();
     try {
       const validationResult = formSchema.safeParse(formData);
-      console.log("validationResult", validationResult);
       if (!validationResult?.success) {
         const errors = validationResult.error.flatten().fieldErrors;
         setFormErrors({

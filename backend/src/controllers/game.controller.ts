@@ -46,7 +46,7 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
 
         const current = await redisClient.get(key);
         if (current && parseInt(current) >= limit) {
-            return socket.emit('spin_error', { message: 'Rate limit exceeded' });
+            return socket.emit('spin_error', { success: false, message: 'Rate limit exceeded' });
         }
 
         await redisClient.multi().incr(key).expire(key, window).exec();
@@ -54,11 +54,11 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
         try {
             const user = await User.findById(userId);
             if (!user) {
-                return socket.emit('spin_error', { message: 'User not found' });
+                return socket.emit('spin_error', { success: false, message: 'User not found' });
             }
 
             if (user.balance < wager) {
-                return socket.emit('spin_error', { message: 'Insufficient balance' });
+                return socket.emit('spin_error', { success: false, message: 'Insufficient balance' });
             }
 
             const reels = spinReels();
@@ -78,6 +78,7 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
             await transaction.save();
 
             socket.emit('spin_result', {
+                success: true,
                 reels,
                 winAmount,
                 balance: user.balance,
@@ -87,7 +88,7 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
             await redisClient.del('leaderboard');
 
         } catch (error) {
-            socket.emit('spin_error', { message: 'An error occurred during the spin' });
+            socket.emit('spin_error', { success: false, message: 'An error occurred during the spin' });
         }
     });
 };
@@ -98,11 +99,11 @@ export const handleBalance = (socket: Socket) => {
         try {
             const user = await User.findById(userId);
             if (!user) {
-                return socket.emit('balance_error', { message: 'User not found' });
+                return socket.emit('balance_error', { success: false, message: 'User not found' });
             }
-            socket.emit('balance_result', { balance: user.balance });
+            socket.emit('balance_result', { success: true, balance: user.balance });
         } catch (error) {
-            socket.emit('balance_error', { message: 'An error occurred while fetching balance' });
+            socket.emit('balance_error', { success: false, message: 'An error occurred while fetching balance' });
         }
     });
 };
@@ -119,12 +120,13 @@ export const handleTransactions = (socket: Socket) => {
             const total = await Transaction.countDocuments({ userId });
 
             socket.emit('transactions_result', {
+                success: true,
                 transactions,
                 totalPages: Math.ceil(total / limit),
                 currentPage: page
             });
         } catch (error) {
-            socket.emit('transactions_error', { message: 'An error occurred while fetching transactions' });
+            socket.emit('transactions_error', { success: false, message: 'An error occurred while fetching transactions' });
         }
     });
 };

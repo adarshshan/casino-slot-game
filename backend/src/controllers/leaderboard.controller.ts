@@ -9,7 +9,8 @@ export const getLeaderboard = async (req: Request, res: Response) => {
     try {
         const cachedLeaderboard = await redisClient.get(cacheKey);
         if (cachedLeaderboard) {
-            return res.json(JSON.parse(cachedLeaderboard));
+            const parsedLeaderboard = JSON.parse(cachedLeaderboard);
+            return res.json({ success: true, ...parsedLeaderboard });
         }
 
         const since = new Date();
@@ -37,8 +38,8 @@ export const getLeaderboard = async (req: Request, res: Response) => {
 
         await redisClient.setEx(cacheKey, 120, JSON.stringify(leaderboard));
 
-        res.json(leaderboard);
+        res.json({ success: true, leaderboard });
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
