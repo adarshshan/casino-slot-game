@@ -10,9 +10,11 @@ let failedRequestsQueue: {
 const api = axios.create({});
 
 api.interceptors.request.use((request) => {
-  let token = localStorage.getItem("accessToken")
-  if (localStorage.getItem("userRole") === 'admin') {
-    token = localStorage.getItem("adminToken")
+  let token = null;
+  if (request.url?.includes('/admin')) {
+    token = localStorage.getItem("adminToken");
+  } else {
+    token = localStorage.getItem("accessToken");
   }
 
   if (token) {
@@ -57,15 +59,15 @@ api.interceptors.response.use(
           await renewToken();
 
           // Retry failed requests in the queue
-          failedRequestsQueue.forEach((req) =>
-            req.resolve(token),
-          );
+          failedRequestsQueue.forEach((req) => {
+            const newToken = originalRequest.url?.includes('/admin') ? localStorage.getItem("adminToken") : localStorage.getItem("accessToken");
+            req.resolve(newToken);
+          });
           failedRequestsQueue = [];
 
-
-
           // Update the original request with the new token
-          originalRequest.headers.Authorization = `Bearer ${token}`;
+          const newToken = originalRequest.url?.includes('/admin') ? localStorage.getItem("adminToken") : localStorage.getItem("accessToken");
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         } catch (refreshError) {
           failedRequestsQueue.forEach((req) => req.reject(refreshError));
@@ -74,7 +76,7 @@ api.interceptors.response.use(
           // Handle token refresh failure (e.g., log out user)
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
-          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminToken"); // Clear admin token as well
 
           return Promise.reject(refreshError);
         } finally {

@@ -10,9 +10,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err: any, user: any) => {
       if (err) {
-        console.log('the error is here...')
         console.log(err as Error)
-        return res.sendStatus(401); // Forbidden
+        return res.sendStatus(403); // Forbidden
       }
 
       (req as any).user = user;

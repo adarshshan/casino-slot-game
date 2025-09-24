@@ -3,8 +3,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
-  console.log('req.headers.authorization...')
-  console.log(req.headers.authorization)
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
@@ -12,6 +10,7 @@ export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
 
     jwt.verify(token, process.env.JWT_ADMIN_SECRET || 'admin_jwt_secret', (err: any, user: any) => {
       if (err) {
+        console.log(err as Error)
         return res.sendStatus(403); // Forbidden
       }
 

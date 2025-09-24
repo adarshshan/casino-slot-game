@@ -16,7 +16,7 @@ const SpinningReel: React.FC = () => {
 
   return (
     <div
-      className="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center text-4xl font-bold"
+      className="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center text-[5rem] font-bold"
       aria-live="polite"
     >
       {currentEmoji}

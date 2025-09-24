@@ -6,7 +6,12 @@ const useApiRequest = () => {
 
   const request = async ({ url, method, body }: { url: string; method: string; body?: any }) => {
     setLoading(true);
-    const token = localStorage.getItem('accessToken');
+    let token = null;
+    if (url.includes('/admin')) {
+      token = localStorage.getItem('adminToken');
+    } else {
+      token = localStorage.getItem('accessToken');
+    }
     try {
       const response = await fetch(url, {
         method,

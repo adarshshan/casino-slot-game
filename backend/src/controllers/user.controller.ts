@@ -6,8 +6,6 @@ import BalanceRequest from '../models/balanceRequest.model';
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
     // Assuming you have the user's ID from the authenticated session
-    console.log('req as any).user....')
-    console.log((req as any).user)
     const userId = (req as any).user.userId; // This needs to be set by an authentication middleware
     const user = await User.findById(userId, '-password');
 

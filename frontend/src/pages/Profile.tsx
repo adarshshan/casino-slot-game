@@ -13,7 +13,7 @@ const Profile: React.FC = () => {
           url: `${import.meta.env.VITE_BASEURL}/api/users/profile`,
           method: "GET",
         });
-        if (data) setUser(data);
+        if (data && data?.success) setUser(data?.user);
         else setUser(null);
       } catch (error) {
         console.error("Error fetching profile", error);
@@ -44,7 +44,7 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+    <div className="flex-1 bg-gray-900 text-white flex flex-col items-center justify-center p-4">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-yellow-400 text-center">
           User Profile

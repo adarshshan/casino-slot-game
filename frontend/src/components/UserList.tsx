@@ -13,6 +13,7 @@ interface UserListInterface {
 
 const UserList: React.FC<UserListInterface> = ({ users, setFetchAgain }) => {
   const { request: deleteRequest, loading: deleteLoading } = useApiRequest();
+  const { request: increaseRequest } = useApiRequest();
 
   const handleDelete = async (id: string) => {
     try {
@@ -33,20 +34,28 @@ const UserList: React.FC<UserListInterface> = ({ users, setFetchAgain }) => {
     }
   };
 
-  const handleIncreaseBalance = (id: string) => {
-    const token = localStorage.getItem("adminToken");
+  const handleIncreaseBalance = async (id: string) => {
     const amount = prompt("Enter amount to increase:");
-    if (amount) {
-      fetch(`/api/admin/users/${id}/increase-balance`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ amount: parseInt(amount) }),
-      }).then(() => {
-        window.location.reload();
-      });
+    try {
+      if (amount) {
+        const data = await increaseRequest({
+          url: `${
+            import.meta.env.VITE_BASEURL
+          }/api/admin/users/${id}/increase-balance`,
+          method: "POST",
+          body: { amount: parseInt(amount) },
+        });
+        if (data && data?.success) {
+          setFetchAgain((prev) => {
+            return {
+              ...prev,
+              getUsers: prev.getUsers + 1,
+            };
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error as Error);
     }
   };
 

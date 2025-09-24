@@ -3,22 +3,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AdminLogin: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const { data, status } = await axios.post(
+      const { data } = await axios.post(
         `${import.meta.env.VITE_BASEURL}/api/admin/login`,
         { username, password }
       );
 
-      if (data && status === 200) {
-        console.log(data);
+      if (data && data?.token && data?.success) {
         localStorage.setItem("adminToken", data?.token);
         navigate("/admin/dashboard");
       } else {
