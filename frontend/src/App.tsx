@@ -3,12 +3,10 @@ import Register from "./pages/Register";
 import Game from "./pages/Game";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./layouts/Layout";
-import Profile from "./pages/Profile";
-import Leaderboard from "./pages/Leaderboard";
-
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import Dashboard from "./pages/Dashboard";
 
 const router = createBrowserRouter([
   //user - side
@@ -21,12 +19,8 @@ const router = createBrowserRouter([
         element: <Game />,
       },
       {
-        path: "/profile",
-        element: <Profile />,
-      },
-      {
-        path: "/leaderboard",
-        element: <Leaderboard />,
+        path: "/dashboard",
+        element: <Dashboard />,
       },
     ],
   },

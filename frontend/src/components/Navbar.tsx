@@ -12,8 +12,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gray-800 p-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className="bg-gray-800 px-14 py-4 shadow-lg">
+      <div className="mx-auto flex justify-between items-center">
         {/* Application Name */}
         <div
           onClick={() => navigate("/")}
@@ -24,19 +24,11 @@ const Navbar: React.FC = () => {
 
         {/* Navigation Icons */}
         <div className="flex items-center space-x-4">
-          {/* Leaderboard Button */}
+          {/* Dashboard Icon */}
           <button
-            onClick={() => navigate("/leaderboard")}
-            className="text-gray-300 hover:text-white transition duration-300 cursor-pointer px-3 py-2 rounded-md text-sm font-medium"
-            title="Leaderboard"
-          >
-            Leaderboard
-          </button>
-          {/* Profile Icon */}
-          <button
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/dashboard")}
             className="text-gray-300 hover:text-white transition duration-300 cursor-pointer"
-            title="Profile"
+            title="Dashboard"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -44,11 +36,7 @@ const Navbar: React.FC = () => {
               viewBox="0 0 20 20"
               fill="currentColor"
             >
-              <path
-                fillRule="evenodd"
-                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                clipRule="evenodd"
-              />
+              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
             </svg>
           </button>
 

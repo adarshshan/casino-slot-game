@@ -125,7 +125,7 @@ const Game: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-900 text-white flex flex-col lg:flex-row gap-5 px-5 pt-5 md:pt-0">
+    <div className="flex-1 bg-gray-900 text-white flex flex-col lg:flex-row gap-5 px-14 pt-5 md:pt-0">
       {/* Left Section: Slot Game */}
       <div className="flex-1 flex flex-col items-center justify-center ">
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg mb-8 w-full h-[90%] flex flex-col justify-between">
@@ -145,7 +145,7 @@ const Game: React.FC = () => {
               ? reels?.map((reel, index) => (
                   <div
                     key={index}
-                    className="w-60 h-60 bg-gray-700 rounded-md flex items-center justify-center text-[5rem] font-bold"
+                    className="w-60 h-60 bg-gray-700 rounded-md flex items-center justify-center text-[3rem] md:text-[5rem] -bold"
                   >
                     {isSpinning ? <SpinningReel /> : reelEmojis[reel] || reel}{" "}
                   </div>
