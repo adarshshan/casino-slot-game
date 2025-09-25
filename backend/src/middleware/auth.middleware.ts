@@ -10,8 +10,10 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err: any, user: any) => {
       if (err) {
-        console.log(err as Error)
-        return res.sendStatus(403); // Forbidden
+        if (err.name === 'TokenExpiredError') {
+          return res.status(401).json({ message: 'Token expired' });
+        }
+        return res.status(401).json({ message: 'Unauthorized' });
       }
 
       (req as any).user = user;

@@ -26,27 +26,23 @@ api.interceptors.request.use((request) => {
 api.interceptors.response.use(
   (response) => response,
   async (err) => {
-
-    let token = localStorage.getItem("accessToken")
-    if (localStorage.getItem("userRole") === 'admin') {
-      token = localStorage.getItem("adminToken")
-    }
-
     const originalRequest = err.config;
+    console.log("Axios interceptor error:", err);
+    console.log("Error response:", err.response);
 
     if (err.response) {
       const { status } = err.response;
+      console.log("Error status:", status);
 
       if (status === 401 && !originalRequest._retry) {
-        // Prevent infinite retry loop
+        console.log('hello its here.....');
         originalRequest._retry = true;
 
         if (isRefreshing) {
-          // Wait for token refresh to complete
           return new Promise((resolve, reject) => {
             failedRequestsQueue.push({ resolve, reject });
           })
-            .then(() => {
+            .then((token) => {
               originalRequest.headers.Authorization = `Bearer ${token}`;
               return api(originalRequest);
             })
@@ -56,27 +52,22 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          await renewToken();
+          const { newAccessToken } = await renewToken(originalRequest);
 
-          // Retry failed requests in the queue
           failedRequestsQueue.forEach((req) => {
-            const newToken = originalRequest.url?.includes('/admin') ? localStorage.getItem("adminToken") : localStorage.getItem("accessToken");
-            req.resolve(newToken);
+            req.resolve(newAccessToken);
           });
           failedRequestsQueue = [];
 
-          // Update the original request with the new token
-          const newToken = originalRequest.url?.includes('/admin') ? localStorage.getItem("adminToken") : localStorage.getItem("accessToken");
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         } catch (refreshError) {
           failedRequestsQueue.forEach((req) => req.reject(refreshError));
           failedRequestsQueue = [];
 
-          // Handle token refresh failure (e.g., log out user)
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
-          localStorage.removeItem("adminToken"); // Clear admin token as well
+          localStorage.removeItem("adminToken");
 
           return Promise.reject(refreshError);
         } finally {
@@ -84,14 +75,13 @@ api.interceptors.response.use(
         }
       }
 
-      // Other error handling
       if (status === 500) {
-        console.log("Internal server error!")
+        console.log("Internal server error!");
       } else if (status === 403) {
         window.location.href = "/login";
-        console.log("Forbidden access")
+        console.log("Forbidden access");
       } else if (err.response?.data?.message) {
-        console.log(err.response?.data?.message)
+        console.log(err.response?.data?.message);
       }
     }
 
@@ -101,17 +91,25 @@ api.interceptors.response.use(
 
 export default api;
 
-const renewToken = async () => {
+const renewToken = async (originalRequest: any) => {
   try {
     const refreshToken = localStorage.getItem("refreshToken");
     const { data } = await axios.post(
-      `${import.meta.env.VITE_BASEURL}/api/refresh`
-      , { token: refreshToken }
+      `${import.meta.env.VITE_BASEURL}/api/auth/refresh`,
+      { token: refreshToken }
     );
 
     if (data && data.success === true) {
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
+      const { accessToken, refreshToken: newRefreshToken } = data;
+
+      if (originalRequest.url?.includes('/admin')) {
+        localStorage.setItem("adminToken", accessToken);
+      } else {
+        localStorage.setItem("accessToken", accessToken);
+      }
+      localStorage.setItem("refreshToken", newRefreshToken);
+
+      return { newAccessToken: accessToken };
     } else {
       throw new Error("Failed to refresh token");
     }
