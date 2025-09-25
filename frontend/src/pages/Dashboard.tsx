@@ -41,7 +41,7 @@ const Dashboard: React.FC = () => {
     const getLeaderboard = async () => {
       try {
         const response = await fetchLeaderboard({
-          url: `${import.meta.env.VITE_BASEURL}/api/leaderboard`,
+          url: `${import.meta.env.VITE_BASEURL}/api/users/leaderboard`,
           method: "GET",
         });
         if (response && response?.success) {

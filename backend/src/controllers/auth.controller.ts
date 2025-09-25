@@ -3,12 +3,12 @@ import User from '../models/user.model';
 import jwt from 'jsonwebtoken';
 
 const generateTokens = (userId: string) => {
-    console.log('Generating tokens for userId:', userId);
     if (!userId) {
         console.error('Error: userId is undefined when generating tokens.');
         throw new Error('userId is required to generate tokens');
     }
-    const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '15m' });
+    // const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '15m' });
+    const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '1m' });
     const refreshToken = jwt.sign({ userId }, process.env.REFRESH_SECRET!, { expiresIn: '7d' });
     return { accessToken, refreshToken };
 };

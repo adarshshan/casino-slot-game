@@ -1,32 +1,20 @@
 
 import { useState } from 'react';
+import api from '../utils/api'; // Import the intercepted axios instance
 
 const useApiRequest = () => {
   const [loading, setLoading] = useState(false);
 
   const request = async ({ url, method, body }: { url: string; method: string; body?: any }) => {
     setLoading(true);
-    let token = null;
-    if (url.includes('/admin')) {
-      token = localStorage.getItem('adminToken');
-    } else {
-      token = localStorage.getItem('accessToken');
-    }
     try {
-      const response = await fetch(url, {
+      const response = await api.request({
+        url,
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
+        data: body,
       });
-      const data = await response.json();
-      if (!response.ok || data.success === false) {
-        throw new Error(data.message || 'API request failed');
-      }
       setLoading(false);
-      return data;
+      return response?.data;
     } catch (error) {
       setLoading(false);
       throw error;

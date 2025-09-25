@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import SpinningReel from "./SpinningReel";
+import axios from "axios";
 
 const reelEmojis: { [key: string]: string } = {
   CHERRY: "🍒",
@@ -15,8 +16,8 @@ const reelEmojis: { [key: string]: string } = {
 
 interface SpinErrorData {
   message: string;
-  code?: string; // Optional error code
-  details?: string; // Optional additional details
+  code?: string;
+  details?: string;
 }
 
 const Game: React.FC = () => {
@@ -33,6 +34,13 @@ const Game: React.FC = () => {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("accessToken"); // Corrected to accessToken
+
+  useEffect(() => {
+    if (!socket) return;
+    if (!socket?.connected) {
+      renewToken();
+    }
+  }, [socket?.connected]);
 
   useEffect(() => {
     if (!token) {
@@ -115,6 +123,30 @@ const Game: React.FC = () => {
     };
   }, [token, navigate, currentPage]);
 
+  const renewToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BASEURL}/api/auth/refresh`,
+        { token: refreshToken }
+      );
+
+      if (data && data.success === true) {
+        const { accessToken, refreshToken: newRefreshToken } = data;
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
+
+        return { newAccessToken: accessToken };
+      } else {
+        throw new Error("Failed to refresh token");
+      }
+    } catch (error) {
+      console.log("Token refresh failed", error);
+      throw error;
+    }
+  };
+
   const handleSpin = () => {
     if (socket && !isSpinning) {
       setIsSpinning(true);
@@ -195,7 +227,7 @@ const Game: React.FC = () => {
 
       {/* Right Section: Transactions */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg mb-8 w-full h-[90%] flex flex-col justify-between">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg mb-8 w-full h-[90%] flex flex-col">
           <h2 className="text-3xl font-bold mb-6 text-blue-400 text-center">
             Recent Transactions
           </h2>
@@ -203,7 +235,7 @@ const Game: React.FC = () => {
           {transactionsLoading ? (
             <div className="text-center text-xl">Loading Transactions...</div>
           ) : transactions.length > 0 ? (
-            <ul className="space-y-4 max-h-[100vh] overflow-y-auto">
+            <ul className="space-y-4 max-h-[100%] overflow-y-auto">
               {transactions.map((transaction) => (
                 <li
                   key={transaction._id}
@@ -241,7 +273,7 @@ const Game: React.FC = () => {
                 disabled={currentPage === 1 || transactionsLoading}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
+                {`<<`}
               </button>
               <span className="text-lg font-semibold">
                 Page {currentPage} of {totalPages}
@@ -253,7 +285,7 @@ const Game: React.FC = () => {
                 disabled={currentPage === totalPages || transactionsLoading}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
+                {`>>`}
               </button>
             </div>
           )}

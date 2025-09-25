@@ -1,7 +1,13 @@
-import { createClient } from "redis";
+import { createClient, RedisClientType } from "redis";
+
+let redisClient: RedisClientType | null = null;
 
 export const connectRedis = async () => {
-  const redisClient = createClient({
+  if (redisClient) {
+    return redisClient;
+  }
+
+  redisClient = createClient({
     url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
     socket: {
       reconnectStrategy: (retries) => {
@@ -23,3 +29,5 @@ export const connectRedis = async () => {
   console.log("Connected to Redis");
   return redisClient;
 };
+
+export { redisClient };

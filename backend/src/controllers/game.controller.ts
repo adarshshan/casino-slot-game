@@ -46,7 +46,7 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
 
         const current = await redisClient.get(key);
         if (current && parseInt(current) >= limit) {
-            return socket.emit('spin_error', { success: false, message: 'Rate limit exceeded' });
+            return socket.emit('spin_error', { success: false, message: 'Rate limit exceeded', details: `Try again in ${window} seconds`, retryAfter: window });
         }
 
         await redisClient.multi().incr(key).expire(key, window).exec();
@@ -57,17 +57,23 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
                 return socket.emit('spin_error', { success: false, message: 'User not found' });
             }
 
-            if (user.balance < wager) {
+            // Ensure wager is a number and valid
+            const numericWager = Number(wager);
+            if (isNaN(numericWager) || numericWager <= 0) {
+                return socket.emit('spin_error', { success: false, message: 'Invalid wager amount' });
+            }
+
+            if (Number(user.balance) < numericWager) {
                 return socket.emit('spin_error', { success: false, message: 'Insufficient balance' });
             }
 
             const reels = spinReels();
-            const winAmount = calculateWin(reels, wager);
+            const winAmount = calculateWin(reels, numericWager);
 
-            user.balance += winAmount - wager;
-            user.totalSpins++;
-            user.totalWagered += wager;
-            user.totalWon += winAmount;
+            user.balance = Number(user.balance) + winAmount - numericWager;
+            user.totalSpins = Number(user.totalSpins) + 1;
+            user.totalWagered = Number(user.totalWagered) + numericWager;
+            user.totalWon = Number(user.totalWon) + winAmount;
             await user.save();
 
             const transaction = new Transaction({
@@ -88,6 +94,8 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
             await redisClient.del('leaderboard');
 
         } catch (error) {
+            console.log('.......its here...........................')
+            console.log(error)
             socket.emit('spin_error', { success: false, message: 'An error occurred during the spin' });
         }
     });
