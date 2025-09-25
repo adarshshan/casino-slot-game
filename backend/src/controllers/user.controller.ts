@@ -13,7 +13,6 @@ export const getUserProfile = async (req: Request, res: Response) => {
     const cachedUser = await redisClient?.get(cacheKey);
 
     if (cachedUser) {
-      console.log('User profile from cache');
       return res.status(200).json({ success: true, user: JSON.parse(cachedUser) });
     }
 
@@ -23,7 +22,6 @@ export const getUserProfile = async (req: Request, res: Response) => {
     if (user) {
       // Store in cache with a TTL (e.g., 60 seconds)
       await redisClient?.setEx(cacheKey, 60, JSON.stringify(user));
-      console.log('User profile from DB, cached');
       res.status(200).json({ success: true, user });
     } else {
       res.status(404).json({ success: false, message: 'User not found' });

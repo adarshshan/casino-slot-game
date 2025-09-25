@@ -1,13 +1,12 @@
 import express, { Application } from "express";
 import cors from 'cors'
 import authRoutes from '../routes/auth.routes';
-import leaderboardRoutes from '../routes/leaderboard.routes';
 import adminRoutes from '../routes/admin.routes';
 import userRoutes from '../routes/user.routes';
 
 const corsOptions = {
-  // origin: process.env.CORS_URL,
-  origin: '*',
+  origin: process.env.CORS_URL,
+  // origin: '*',
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
@@ -28,7 +27,6 @@ export const createServer = (redisClient: any) => {
     });
 
     app.use('/api/auth', authRoutes);
-    app.use('/api/leaderboard', leaderboardRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/users', userRoutes);
 

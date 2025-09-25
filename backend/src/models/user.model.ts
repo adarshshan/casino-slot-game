@@ -23,17 +23,11 @@ const UserSchema: Schema = new Schema({
 }, { timestamps: true });
 
 UserSchema.pre<IUser>('save', async function (next) {
-    console.log('--- Entering pre(\'save\') hook ---');
     if (!this.isModified('password')) {
-        console.log('Password not modified, skipping hashing.');
         return next();
     }
-    console.log('Password modified, proceeding with hashing.');
-    console.log('Generating salt...');
     const salt = await bcrypt.genSalt(10);
-    console.log('Salt generated. Hashing password...');
     this.password = await bcrypt.hash(this.password, salt);
-    console.log('Password hashed. Exiting pre(\'save\') hook.');
     next();
 });
 
