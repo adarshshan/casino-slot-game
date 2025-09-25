@@ -5,8 +5,8 @@ import adminRoutes from '../routes/admin.routes';
 import userRoutes from '../routes/user.routes';
 
 const corsOptions = {
-  origin: process.env.CORS_URL,
-  // origin: '*',
+  // origin: process.env.CORS_URL,
+  origin: '*',
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
