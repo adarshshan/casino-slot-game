@@ -4,6 +4,13 @@ This is a basic but well-structured slot game platform that works locally and us
 
 ---
 
+# Login Pages & urls
+
+- User Login:  http://3.27.120.91:5173/login
+- Admin Login: http://3.27.120.91:5173/admin/login (username: admin@example.com , password: admin123)
+
+---
+
 ### Tech Stack
 
 - **Backend**: Node.js (TypeScript), Express, Socket.IO
