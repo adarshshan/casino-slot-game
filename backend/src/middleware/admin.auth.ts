@@ -22,7 +22,6 @@ export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
       }
     });
   } else {
-    console.log('its hitting here...')
     res.sendStatus(401); // Unauthorized
   }
 };

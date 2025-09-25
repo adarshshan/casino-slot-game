@@ -35,7 +35,6 @@ api.interceptors.response.use(
       console.log("Error status:", status);
 
       if (status === 401 && !originalRequest._retry) {
-        console.log('hello its here.....');
         originalRequest._retry = true;
 
         if (isRefreshing) {

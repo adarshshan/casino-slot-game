@@ -94,7 +94,6 @@ export const handleSpin = (socket: Socket, redisClient: any) => {
             await redisClient.del('leaderboard');
 
         } catch (error) {
-            console.log('.......its here...........................')
             console.log(error)
             socket.emit('spin_error', { success: false, message: 'An error occurred during the spin' });
         }
