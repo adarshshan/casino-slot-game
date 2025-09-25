@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import BalanceRequest from '../models/balanceRequest.model';
+import { redisClient } from '../config/redis';
 
 
 // Hardcoded admin credentials
@@ -22,8 +23,18 @@ export const adminLogin = (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).user.userId;
+    const cacheKey = `users:${userId}:list`;
+
+    const cachedUsers = await redisClient?.get(cacheKey);
+
+    if (cachedUsers) {
+      return res.status(200).json({ success: true, users: JSON.parse(cachedUsers) });
+    }
     const users = await User.find({}, '-password'); // Exclude passwords from the result
-    res.status(200).json({ success: true, users });
+    if (users) {
+      res.status(200).json({ success: true, users });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching users', error });
   }
@@ -81,8 +92,18 @@ export const increaseBalance = async (req: Request, res: Response) => {
 
 export const getBalanceRequests = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).user.userId;
+    const cacheKey = `users:${userId}:list`;
+
+    const cachedRequests = await redisClient?.get(cacheKey);
+    if (cachedRequests) {
+      return res.status(200).json({ success: true, requests: JSON.parse(cachedRequests) });
+    }
+
     const requests = await BalanceRequest.find().populate('user', 'username');
-    res.status(200).json({ success: true, requests });
+    if (requests) {
+      res.status(200).json({ success: true, requests });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching balance requests', error });
   }
